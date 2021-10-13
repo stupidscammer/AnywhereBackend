@@ -1,0 +1,144 @@
+name: CI
+
+on: ['push', 'pull_request']
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: yarn install
+        if: steps.yarn-cache.outputs.cache-hit != 'true' # Over here!
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: yarn lint
+        run: yarn lint
+
+        env:
+          CI: true
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: yarn install
+        if: steps.yarn-cache.outputs.cache-hit != 'true' # Over here!
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: yarn test
+        run: yarn test --reporters="default" --reporters="github-actions"
+
+        env:
+          CI: true
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: yarn install
+        if: steps.yarn-cache.outputs.cache-hit != 'true' # Over here!
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: yarn coverage
+        run: yarn coverage
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+
+  spellcheck:
+    name: Spellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: streetsidesoftware/cspell-action@main
+        with:
+          # Github token used to fetch the list of changed files in the commit.
+          # Default: ${{ github.token }}
+          github_token: ${{ github.token }}
+
+          # Define glob patterns to filter the files to be checked. Use a new line between patterns to define multiple patterns.
+          # The default is to check ALL files that were changed in in the pull_request or push.
+          # Note: `ignorePaths` defined in cspell.json still apply.
+          # Example:
+          # files: |
+          #   **/*.{ts,js}
+          #   !dist/**/*.{ts,js}
+          #   # Hidden directories need an explicit .* to be included
+          #   .*/**/*.yml
+          #
+          # To not check hidden files, use:
+          # files: "**"
+          #
+          # Default: ALL files
+          files: '**'
+
+          # The point in the directory tree to start spell checking.
+          # Default: .
+          root: '.'
+
+          # Notification level to use with inline reporting of spelling errors.
+          # Allowed values are: warning, error, none
+          # Default: warning
+          inline: error
+
+          # Determines if the action should be failed if any spelling issues are found.
+          # Allowed values are: true, false
+          # Default: true
+          strict: true
+
+          # Limit the files checked to the ones in the pull request or push.
+          incremental_files_only: false
+
+          # Path to `cspell.json`
+          config: 'cspell.json'

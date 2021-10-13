@@ -1,0 +1,52 @@
+{
+  "language": "en",
+  "spellCheckDelayMs": 500,
+  "dictionaries": ["node", "npm", "typescript", "contributors"],
+  "ignorePaths": [
+    "node_modules/**",
+    "coverage/**",
+    "dist/**",
+    "tsconfig.tsbuildinfo",
+    "package.json",
+    "yarn.lock",
+    ".gitpod.yml",
+    "*.tgz"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "contributors",
+      "path": "CONTRIBUTORS.txt"
+    }
+  ],
+  "ignoreRegExpList": ["[a-z]+path", "\\]\\(#[a-z-]+\\)"],
+  "words": [
+    "brotli",
+    "camelcase",
+    "codesandbox",
+    "deepcode",
+    "depthfrom",
+    "fastify",
+    "globbing",
+    "gzipped",
+    "lcov",
+    "Lenna",
+    "lipsum",
+    "lorum",
+    "middlewares",
+    "millis",
+    "mockttp",
+    "nextjs",
+    "Nodejitsu",
+    "ntlm",
+    "pino",
+    "proxied",
+    "proxying",
+    "rawbody",
+    "restream",
+    "snyk",
+    "streamify",
+    "vhosted",
+    "websockets",
+    "xfwd"
+  ]
+}

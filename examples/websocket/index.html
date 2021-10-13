@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>http-proxy-middleware - WebSocket example</title>
+    <style>
+      fieldset {
+        border: 0;
+      }
+      label {
+        display: inline-block;
+        width: 5em;
+        vertical-align: top;
+      }
+      code {
+        background-color: #eee;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>WebSocket demo</h2>
+
+    <p>Proxy <code>ws://localhost:3000</code> to <code>ws://ws.ifelse.io</code></p>
+
+    <fieldset id="configuration">
+      <p>
+        <label for="location">location:</label>
+        <input id="location" type="text" value="ws://localhost:3000" />
+        <button id="connectBtn">connect</button>
+        <button id="disconnectBtn" disabled="disabled">disconnect</button>
+      </p>
+    </fieldset>
+    <fieldset id="messaging" disabled="disabled">
+      <p>
+        <label for="message">message:</label>
+        <input type="text" id="message" value="Hello WebSocket" />
+        <button id="sendBtn">send</button>
+      </p>
+      <p>
+        <label for="logger">log:</label>
+        <textarea id="logger" cols="30" rows="10"></textarea>
+      </p>
+    </fieldset>
+
+    <script>
+      window.onload = function () {
+        // elements
+        const configuration = document.getElementById('configuration');
+        const location = document.getElementById('location');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const messaging = document.getElementById('messaging');
+        const message = document.getElementById('message');
+        const sendBtn = document.getElementById('sendBtn');
+        const logger = document.getElementById('logger');
+
+        // ws
+        let socket;
+
+        connectBtn.onclick = () => {
+          connect();
+        };
+        disconnectBtn.onclick = () => {
+          disconnect();
+        };
+        sendBtn.onclick = () => {
+          sendMessage(message.value);
+        };
+
+        function connect() {
+          setupSocket(location.value);
+          toggleControls();
+        }
+
+        function disconnect() {
+          socket.close();
+          socket = undefined;
+          toggleControls();
+        }
+
+        function sendMessage(val) {
+          log('SEND: ' + val);
+          socket.send(val);
+        }
+
+        function setupSocket(url) {
+          socket = new WebSocket(url);
+          socket.addEventListener('open', () => {
+            log('CONNECTED');
+          });
+          socket.addEventListener('close', () => {
+            log('DISCONNECTED');
+          });
+          socket.addEventListener('error', () => {
+            log('SOCKET ERROR OCCURRED');
+          });
+          socket.addEventListener('message', (msg) => {
+            log('RECEIVED:' + msg.data);
+          });
+        }
+
+        function log(message) {
+          logger.value = logger.value + message + '\n';
+          logger.scrollTop = logger.scrollHeight; // scroll to bottom
+        }
+
+        function toggleControls() {
+          [connectBtn, disconnectBtn, messaging].forEach((el) => toggleEnabled(el));
+        }
+
+        function toggleEnabled(el) {
+          el.disabled = el.disabled ? false : true;
+        }
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "lib": ["es2019", "es2020.bigint", "es2020.string", "es2020.symbol.wellknown"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2019",
+    "incremental": true,
+    "declaration": true
+  },
+  "include": ["./src"]
+}
